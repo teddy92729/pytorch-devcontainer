@@ -2,15 +2,11 @@ services:
   pytorch:
     build: ./pytorch
     restart: unless-stopped
-    init: true
     volumes:
-      - ./workspaces:/root/workspaces
-    working_dir: /root/workspaces
+      - ./workspaces:/home/devcontainer/workspaces
     environment:
       - AUTHORIZED_KEY_FILE=/run/secrets/AUTHORIZED_KEY
-    ulimits:
-      memlock: -1
-      stack: 67108864
+    shm_size: 64gb
     deploy:
       resources:
         reservations:
