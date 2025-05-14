@@ -1,0 +1,36 @@
+services:
+  pytorch:
+    build: ./pytorch
+    restart: unless-stopped
+    init: true
+    volumes:
+      - ./workspaces:/root/workspaces
+    working_dir: /root/workspaces
+    environment:
+      - AUTHORIZED_KEY_FILE=/run/secrets/AUTHORIZED_KEY
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    secrets:
+      - AUTHORIZED_KEY
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run --protocol http2
+    environment:
+      - TUNNEL_TOKEN_FILE=/run/secrets/TUNNEL_TOKEN
+    secrets:
+      - TUNNEL_TOKEN
+
+secrets:
+  AUTHORIZED_KEY:
+    file: ./AUTHORIZED_KEY
+  TUNNEL_TOKEN:
+    file: ./TUNNEL_TOKEN

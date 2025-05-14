@@ -1,0 +1,29 @@
+FROM nvcr.io/nvidia/pytorch:24.02-py3
+
+RUN /bin/sh -exu;\
+    apt-get update; \
+    apt-get install -y ssh; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*; 
+
+RUN /bin/sh -exu;\
+    sed -i "s/#Port.*/Port 22/" /etc/ssh/sshd_config; \
+    sed -i "s/#PermitRootLogin.*/PermitRootLogin no/" /etc/ssh/sshd_config; \
+    sed -i "s/#PasswordAuthentication.*/PasswordAuthentication no/" /etc/ssh/sshd_config; \
+    sed -i "s/#PubkeyAuthentication.*/PubkeyAuthentication yes/" /etc/ssh/sshd_config; \
+    sed -i "s/#PermitEmptyPasswords.*/PermitEmptyPasswords no/" /etc/ssh/sshd_config; \
+    sed -i "s/#UsePAM.*/UsePAM yes/" /etc/ssh/sshd_config; \
+    sed -i "s/#UseDNS.*/UseDNS no/" /etc/ssh/sshd_config; \
+    sed -i "s/#ChallengeResponseAuthentication.*/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config;
+    
+
+EXPOSE 22
+
+
+RUN /bin/sh -exu; \
+    groupadd -g 1000 devcontainer; \
+    useradd -m -s /bin/bash -u 1000 -g 1000 devcontainer;
+
+COPY --chown=root:root --chmod=755 ./init.sh /init.sh
+
+ENTRYPOINT ["/init.sh"]
