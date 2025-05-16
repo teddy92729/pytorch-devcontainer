@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -eux
 trap 'exit 0' SIGTERM
 
 if [ -z "$AUTHORIZED_KEY_FILE" ]; then
@@ -14,6 +15,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 echo "Public key copied successfully."
+
+# workspace permissions
+chown -R devcontainer:devcontainer /home/devcontainer/workspaces
+chmod -R 755 /home/devcontainer/workspaces
 
 # freeze authorized_keys file 
 chown -R root:root /home/devcontainer/.ssh
